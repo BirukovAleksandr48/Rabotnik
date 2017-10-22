@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="?android:listSeparatorTextViewStyle"
+        android:text="Title:"
+        android:background="#BBBBBB"
+        android:padding="7dp"/>
+
+    <EditText android:id="@+id/et_title"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginLeft="16dp"
+              android:layout_marginRight="16dp"
+              android:hint="Programmer"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="?android:listSeparatorTextViewStyle"
+        android:text="Sallary:"
+        android:background="#BBBBBB"
+        android:padding="7dp"/>
+
+    <EditText android:id="@+id/et_sallary"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginLeft="16dp"
+              android:layout_marginRight="16dp"
+              android:hint="1000$"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="?android:listSeparatorTextViewStyle"
+        android:text="City:"
+        android:background="#BBBBBB"
+        android:padding="7dp"/>
+
+    <EditText android:id="@+id/et_city"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginLeft="16dp"
+              android:layout_marginRight="16dp"
+              android:hint="New York"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="?android:listSeparatorTextViewStyle"
+        android:text="Category:"
+        android:background="#BBBBBB"
+        android:padding="7dp"/>
+
+    <Spinner android:id="@+id/spinner_category"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginLeft="16dp"
+              android:layout_marginRight="16dp"
+             android:layout_margin="7dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="?android:listSeparatorTextViewStyle"
+        android:text="Description:"
+        android:background="#BBBBBB"
+        android:padding="7dp"/>
+
+    <EditText
+        android:id="@+id/et_description"
+        android:gravity="top|left"
+        android:inputType="textMultiLine"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:scrollHorizontally="false"
+        android:layout_weight="1"
+        />
+</LinearLayout>
