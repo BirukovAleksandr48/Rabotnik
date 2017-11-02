@@ -1,19 +1,25 @@
 package com.bignerdranch.android.rabotnik;
 
+import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ListView;
-import android.widget.TabHost;
+import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -23,11 +29,18 @@ import java.util.ArrayList;
 
 
 public class WorkerFragment extends Fragment {
-    ListView lvMine, lvFind;
-    ArrayList <Poster> mArrayList;
+    RecyclerView recFav, recAll;
+    ArrayList <Poster> mPosters;
     ImageButton btnAdd;
-    public static Handler handler;
-    ItemAdapter adapter;
+    public static Handler handler = new Handler(Looper.getMainLooper());
+    RecyclerView.Adapter adapter;
+    ArrayList<String> mCategories = new ArrayList<>();
+    ArrayList<String> mSallaries = new ArrayList<>();
+    Button btnCateg, btnSallary, btnCity;
+    public static final int REQUEST_CODE_CATEGORY = 1;
+    public static final int REQUEST_CODE_CITY = 2;
+    public static final int REQUEST_CODE_SALLARY = 3;
+    FindPost mFindPost = new FindPost();
 
     public static WorkerFragment newInstance(){
         WorkerFragment fragement = new WorkerFragment();
@@ -38,12 +51,9 @@ public class WorkerFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.e("MyLog", "onCreate");
-        mArrayList = new ArrayList<>();
-
+        mPosters = new ArrayList<>();
         handler = new MyHandler();
-
-        Intent i = new Intent(getContext(), MyService.class);
-        getActivity().startService(i);
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -51,36 +61,88 @@ public class WorkerFragment extends Fragment {
         Log.e("MyLog", "onCreateView");
         View v = inflater.inflate(R.layout.resume_layout, container, false);
 
-        TabHost tabHost = (TabHost) v.findViewById(R.id.resume_tabhost);
-        tabHost.setup();
-        TabHost.TabSpec tabSpec = tabHost.newTabSpec("tag_all");
-        tabSpec.setContent(R.id.tab1);
-        tabSpec.setIndicator("Find");
-        tabHost.addTab(tabSpec);
-        tabSpec = tabHost.newTabSpec("tag_favorite");
-        tabSpec.setContent(R.id.tab2);
-        tabSpec.setIndicator("Favorite");
-        tabHost.addTab(tabSpec);
-        tabSpec = tabHost.newTabSpec("tag_mine");
-        tabSpec.setContent(R.id.tab3);
-        tabSpec.setIndicator("Mine");
-        tabHost.addTab(tabSpec);
-        tabHost.setCurrentTab(0);
+        recAll = (RecyclerView) v.findViewById(R.id.rec_view_all);
+        recAll.setLayoutManager(new LinearLayoutManager(getActivity()));
+        btnCateg = (Button) v.findViewById(R.id.btn_filter_category);
+        btnSallary = (Button) v.findViewById(R.id.btn_filter_sallary);
+        btnCity = (Button) v.findViewById(R.id.btn_filter_city);
 
-        lvFind = (ListView) v.findViewById(R.id.list_all);
-        adapter = new ItemAdapter(getContext(), mArrayList);
-        lvFind.setAdapter(adapter);
-
-        btnAdd = (ImageButton) v.findViewById(R.id.btn_add);
-        btnAdd.setOnClickListener(new View.OnClickListener() {
+        btnCateg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = PostEditActivity.newIntent(getActivity(), null);
-                startActivity(i);
+                openDialogCategories();
             }
         });
-
+        btnCity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openDialogCity();
+            }
+        });
+        btnSallary.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openDialogSallary();
+            }
+        });
+        getActivity().setTitle("Поиск вакансий");
+        getResumes();
+        getCategories();
         return v;
+    }
+
+    public void openDialogCategories(){
+        ListDialog fragment = ListDialog.newInstance(mCategories);
+        fragment.setTargetFragment(this, REQUEST_CODE_CATEGORY);
+        fragment.show(getFragmentManager(), fragment.getClass().getName());
+    }
+    public void openDialogCity(){
+        CityDialog fragment = new CityDialog();
+        fragment.setTargetFragment(this, REQUEST_CODE_CITY);
+        fragment.show(getFragmentManager(), fragment.getClass().getName());
+    }
+    public void openDialogSallary(){
+        SallaryDialog fragment = new SallaryDialog();
+        fragment.setTargetFragment(this, REQUEST_CODE_SALLARY);
+        fragment.show(getFragmentManager(), fragment.getClass().getName());
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK) {
+
+            if(requestCode == REQUEST_CODE_CATEGORY) {
+                int result = data.getIntExtra(ListDialog.KEY_RESULT, 0);
+                btnCateg.setText(mCategories.get(result));
+                if(result == 0){
+                    mFindPost.setCategory(null);
+                }else{
+                    mFindPost.setCategory(mCategories.get(result));
+                }
+                findPosters();
+            }else if(requestCode == REQUEST_CODE_CITY) {
+                String result = data.getStringExtra(CityDialog.KEY_RESULT);
+                if(result.equals("")){
+                    mFindPost.setCity(null);
+                    btnCity.setText("Все города");
+                }else{
+                    btnCity.setText(result);
+                    mFindPost.setCity(result);
+                }
+                findPosters();
+            }else if(requestCode == REQUEST_CODE_SALLARY) {
+                String result = data.getStringExtra(CityDialog.KEY_RESULT);
+                if(result.equals("")){
+                    mFindPost.setSallary(null);
+                    btnSallary.setText("Без ограничений");
+                }else{
+                    mFindPost.setSallary(result);
+                    btnSallary.setText("От " + result + " грн");
+                }
+                findPosters();
+            }
+        }
     }
 
     public class MyHandler extends Handler {
@@ -92,22 +154,132 @@ public class WorkerFragment extends Fragment {
 
             if(what == MyService.KEY_UPDATE){
                 Bundle bundle = msg.getData();
-                String jsonString = bundle.getString(MyService.KEY_JSONSTRING);
-
+                String jsonString = bundle.getString(MyService.KEY_JSON_RESULT);
                 Type listType = new TypeToken<ArrayList<Poster>>(){}.getType();
-                mArrayList= new Gson().fromJson(jsonString, listType);
-
-                updateList();
-            }else if(what == MyService.KEY_CONNECTED){
-                Intent i = new Intent(getContext(), MyService.class);
-                i.putExtra(MyService.KEY_COMMAND_TYPE, MyService.KEY_COMMAND_GET_RESUMES);
-                getActivity().startService(i);
+                mPosters = new Gson().fromJson(jsonString, listType);
+                updateUI();
+            }else if(what == MyService.KEY_RETURN_CATEGORIES){
+                Bundle bundle = msg.getData();
+                String jsonString = bundle.getString(MyService.KEY_JSON_RESULT);
+                Type listType = new TypeToken<ArrayList<String>>(){}.getType();
+                mCategories = new Gson().fromJson(jsonString, listType);
+                mCategories.add(0, "Все категории");
             }
         }
     }
-    public void updateList(){
-        Log.e("MyLog", "updateList. Size of Array:" + String.valueOf(mArrayList.size()));
-        adapter = new ItemAdapter(getContext(), mArrayList);
-        lvFind.setAdapter(adapter);
+
+    public void updateUI(){
+        adapter = new PostAdapter(mPosters);
+        recAll.setAdapter(adapter);
+    }
+
+    public void getCategories(){
+        MesToServer mts = new MesToServer(MyService.KEY_COMMAND_GET_CATEGORIES, null);     //Теперь запрашиваем список категорий
+        String jsonMes = new Gson().toJson(mts);
+        Intent i = new Intent(getActivity(), MyService.class);
+        i.putExtra(MyService.KEY_MESSAGE_TO_SERVER, jsonMes);
+        i.putExtra(MyService.SENDER, MyService.SENDER_WF);
+        getActivity().startService(i);
+    }
+
+    public void getResumes(){
+        MesToServer mts = new MesToServer(MyService.KEY_COMMAND_GET_RESUMES, null);
+        String jsonMes = new Gson().toJson(mts);
+        Intent i = new Intent(getActivity(), MyService.class);
+        i.putExtra(MyService.KEY_MESSAGE_TO_SERVER, jsonMes);
+        i.putExtra(MyService.SENDER, MyService.SENDER_WF);
+        getActivity().startService(i);
+    }
+
+    public void findPosters(){
+        String data = new Gson().toJson(mFindPost);
+        MesToServer mts = new MesToServer(MyService.KEY_COMMAND_FIND_RESUMES, data);
+        String jsonMes = new Gson().toJson(mts);
+        Intent i = new Intent(getActivity(), MyService.class);
+        i.putExtra(MyService.KEY_MESSAGE_TO_SERVER, jsonMes);
+        i.putExtra(MyService.SENDER, MyService.SENDER_WF);
+        getActivity().startService(i);
+    }
+
+    public class PostHolder extends RecyclerView.ViewHolder {
+        ImageButton btnFav;
+        TextView tvTitle, tvCity, tvSallary;
+        Poster mPoster;
+
+        public PostHolder(View itemView) {
+            super(itemView);
+            tvTitle = (TextView) itemView.findViewById(R.id.tv_title);
+            tvCity = (TextView) itemView.findViewById(R.id.tv_city);
+            tvSallary = (TextView) itemView.findViewById(R.id.tv_sallary);
+            btnFav = (ImageButton) itemView.findViewById(R.id.btn_fav);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String json = new Gson().toJson(mPoster);
+                    Log.e("MyLog", "jsonString = " + json);
+                    Intent i = PostEditActivity.newIntent(getActivity(), json);
+                    startActivity(i);
+                }
+            });
+        }
+
+        public void bindViewHolder(Poster poster) {
+            this.mPoster = poster;
+            tvTitle.setText(mPoster.getTitle());
+            tvSallary.setText(mPoster.getSallary());
+            tvCity.setText(mPoster.getCity());
+        }
+    }
+
+    public class PostAdapter extends RecyclerView.Adapter<PostHolder>{
+        private ArrayList<Poster> mPosters;
+
+        public PostAdapter(ArrayList<Poster> posters) {
+            mPosters = posters;
+        }
+
+        @Override
+        public PostHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            LayoutInflater inflater = LayoutInflater.from(getActivity());
+            View v = inflater.inflate(R.layout.list_item, parent, false);
+            return new PostHolder(v);
+        }
+
+        @Override
+        public void onBindViewHolder(PostHolder holder, int position) {
+            Poster poster = mPosters.get(position);
+            holder.bindViewHolder(poster);
+        }
+
+        @Override
+        public int getItemCount() {
+            return mPosters.size();
+        }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
+        super.onCreateOptionsMenu(menu, menuInflater);
+        menuInflater.inflate(R.menu.menu_find, menu);
+
+        MenuItem searchItem = menu.findItem(R.id.menu_item_search);
+        final SearchView searchView = (SearchView) searchItem.getActionView();
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                    @Override
+                    public boolean onQueryTextSubmit(String s) {
+                        if(s.equals("")){
+                            mFindPost.setWord(null);
+                        }else{
+                            mFindPost.setWord(s);
+                        }
+                        findPosters();
+                        return true;
+                    }
+                    @Override
+                    public boolean onQueryTextChange(String s) {
+                        return false;
+                    }
+                });
     }
 }

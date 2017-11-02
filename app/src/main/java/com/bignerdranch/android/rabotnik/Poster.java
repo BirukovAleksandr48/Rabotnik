@@ -7,10 +7,10 @@ public class Poster {
     private String body;
     private String city;
     private String sallary;
-    private int idCategory;
+    private String Category;
 
     public Poster(int id, int idCreator, String title, String body,
-                  String city, String sallary, int idCategory) {
+                  String city, String sallary, String Category) {
         super();
         this.id = id;
         this.idCreator = idCreator;
@@ -18,7 +18,7 @@ public class Poster {
         this.body = body;
         this.city = city;
         this.sallary = sallary;
-        this.idCategory = idCategory;
+        this.Category = Category;
     }
     public Poster() {
         super();
@@ -28,13 +28,14 @@ public class Poster {
         this.body = "";
         this.city = "";
         this.sallary = "";
-        this.idCategory = 0;
+        this.Category = "";
     }
+
     @Override
     public String toString() {
         return "Resume [id=" + id + ", idCreator=" + idCreator + ", title="
                 + title + ", body=" + body + ", city=" + city + ", sallary="
-                + sallary + ", idCategory=" + idCategory + "]";
+                + sallary + ", idCategory=" + Category + "]";
     }
     public int getId() {
         return id;
@@ -72,10 +73,11 @@ public class Poster {
     public void setSallary(String sallary) {
         this.sallary = sallary;
     }
-    public int getIdCategory() {
-        return idCategory;
+    public String getCategory() {
+        return Category;
     }
-    public void setIdCategory(int idCategory) {
-        this.idCategory = idCategory;
+    public void setCategory(String Category) {
+        this.Category = Category;
     }
+
 }
