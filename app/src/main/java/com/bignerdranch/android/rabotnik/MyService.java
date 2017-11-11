@@ -1,15 +1,10 @@
 package com.bignerdranch.android.rabotnik;
 
-import android.app.IntentService;
 import android.app.Service;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -22,15 +17,18 @@ import java.util.Scanner;
 
 public class MyService extends Service {
     private volatile Socket socket;
-    public final static String KEY_COMMAND_TYPE = "KEY_COMMAND_TYPE";
-    public final static String KEY_COMMAND_GET_RESUMES = "KEY_COMMAND_GET_RESUMES";
+
     public final static String KEY_COMMAND_FIND_RESUMES = "KEY_COMMAND_FIND_RESUMES";
     public final static String KEY_COMMAND_GET_USER = "KEY_COMMAND_GET_USER";
     public static final String KEY_JSON_RESULT = "KEY_JSON_RESULT";
     public static final String KEY_COMMAND_GET_CATEGORIES = "KEY_COMMAND_GET_CATEGORIES";
     public static final String KEY_MESSAGE_TO_SERVER = "KEY_MESSAGE_TO_SERVER";
-    public static final String KEY_COMMAND_ADD_USER = "KEY_MESSAGE_TO_SERVER";
+    public static final String KEY_COMMAND_ADD_USER = "KEY_COMMAND_ADD_USER";
     public static final String KEY_COMMAND_SIGN_IN = "KEY_COMMAND_SIGN_IN";
+    public static final String KEY_COMMAND_TOGGLE_FAV = "KEY_COMMAND_TOGGLE_FAV";
+    public static final String KEY_COMMAND_SAVE_RESUME = "KEY_COMMAND_SAVE_RESUME";
+    public static final String KEY_COMMAND_DELETE_RESUME = "KEY_COMMAND_DELETE_RESUME";
+    public static final String KEY_COMMAND_GET_FAV_RESUMES = "KEY_COMMAND_GET_FAV_RESUMES";
 
     public static final int KEY_UPDATE = 1111;
     public static final int KEY_CONNECTED = 2222;
@@ -43,6 +41,8 @@ public class MyService extends Service {
     public static final String SENDER_SIF = "SENDER_SIF";
     public static final String SENDER_SUF = "SENDER_SUF";
     public static final String SENDER_SA = "SENDER_SA";
+    public static final String SENDER_MR = "SENDER_MR";
+    public static final String SENDER_FavR = "SENDER_FavR";
 
     private String CurSender = null;
 
@@ -62,7 +62,7 @@ public class MyService extends Service {
                     Log.e("MyLog", "connect");
                     int serverPort = 6666;
 
-                    String address = "192.168.1.6";
+                    String address = "192.168.1.3";
                     try {
                         InetAddress ipAddress = InetAddress.getByName(address);
                         socket = new Socket(ipAddress, serverPort);
@@ -75,20 +75,16 @@ public class MyService extends Service {
 
                         Scanner sc = new Scanner(socket.getInputStream());
                         while (sc.hasNextLine()) {
-                            String sender = sc.nextLine();
                             String jsonMessage = sc.nextLine();
-                            Log.e("MyLog", "Got a message from server. Length = " + String.valueOf(jsonMessage.length()));
-                            Log.e("MyLog", sender);
-                            Log.e("MyLog", jsonMessage);
 
                             MesToServer mts = new Gson().fromJson(jsonMessage, MesToServer.class);
                             String jsonString = mts.getJSONData();
 
-                            if(sender.equals(SENDER_WF)){
-                                Message mes = WorkerFragment.handler.obtainMessage();
+                            if(CurSender.equals(SENDER_WF)){
+                                Message mes = FragmentFindResume.handler.obtainMessage();
 
-                                if(mts.getCommand().equals(KEY_COMMAND_GET_RESUMES)
-                                || mts.getCommand().equals(KEY_COMMAND_FIND_RESUMES)){
+                                if(mts.getCommand().equals(KEY_COMMAND_FIND_RESUMES)
+                                || mts.getCommand().equals(KEY_COMMAND_TOGGLE_FAV)){
                                     mes.what = KEY_UPDATE;
                                 }else if(mts.getCommand().equals(KEY_COMMAND_GET_CATEGORIES)){
                                     mes.what = KEY_RETURN_CATEGORIES;
@@ -97,37 +93,52 @@ public class MyService extends Service {
                                 Bundle bundle = new Bundle();
                                 bundle.putString(KEY_JSON_RESULT, jsonString);
                                 mes.setData(bundle);
-                                WorkerFragment.handler.sendMessage(mes);
-                            }else if(sender.equals(SENDER_PEF)){
+                                FragmentFindResume.handler.sendMessage(mes);
+                            }else if(CurSender.equals(SENDER_PEF)){
                                 Message mes = PostEditFragment.handler.obtainMessage();
                                 mes.what = KEY_RETURN_CATEGORIES;
                                 Bundle bundle = new Bundle();
                                 bundle.putString(KEY_JSON_RESULT, jsonString);
                                 mes.setData(bundle);
                                 PostEditFragment.handler.sendMessage(mes);
-                            }else if(sender.equals(SENDER_SIF)){
+                            }else if(CurSender.equals(SENDER_SIF)){
                                 Message mes = SignInFragment.handler.obtainMessage();
                                 mes.what = KEY_RETURN_USER;
                                 Bundle bundle = new Bundle();
                                 bundle.putString(KEY_JSON_RESULT, jsonString);
                                 mes.setData(bundle);
                                 SignInFragment.handler.sendMessage(mes);
-                            }else if(sender.equals(SENDER_SUF)){
+                            }else if(CurSender.equals(SENDER_SUF)){
                                 Message mes = SignUpFragment.handler.obtainMessage();
                                 mes.what = KEY_RETURN_USER;
                                 Bundle bundle = new Bundle();
                                 bundle.putString(KEY_JSON_RESULT, jsonString);
                                 mes.setData(bundle);
                                 SignUpFragment.handler.sendMessage(mes);
-                            }else if(sender.equals(SENDER_SA)){
+                            }else if(CurSender.equals(SENDER_SA)){
                                 Message mes = SignActivity.handler.obtainMessage();
                                 mes.what = KEY_RETURN_USER;
                                 Bundle bundle = new Bundle();
                                 bundle.putString(KEY_JSON_RESULT, jsonString);
                                 mes.setData(bundle);
                                 SignActivity.handler.sendMessage(mes);
+                            }else if(CurSender.equals(SENDER_MR)){
+                                Message mes = FragmentMyResume.handler.obtainMessage();
+                                mes.what = KEY_UPDATE;
+                                Bundle bundle = new Bundle();
+                                bundle.putString(KEY_JSON_RESULT, jsonString);
+                                mes.setData(bundle);
+                                FragmentMyResume.handler.sendMessage(mes);
+                                Log.e("MyLog", "Сообщение в myresume.");
+                            }else if(CurSender.equals(SENDER_FavR)){
+                                Message mes = FragmentFavResume.handler.obtainMessage();
+                                mes.what = KEY_UPDATE;
+                                Bundle bundle = new Bundle();
+                                bundle.putString(KEY_JSON_RESULT, jsonString);
+                                mes.setData(bundle);
+                                FragmentFavResume.handler.sendMessage(mes);
+                                Log.e("MyLog", "Сообщение в myresume.");
                             }
-
                             Log.e("MyLog", "Сообщение в активити отправлено.");
                         }
                     } catch (IOException e) {e.printStackTrace();}
@@ -140,7 +151,7 @@ public class MyService extends Service {
     public int onStartCommand(final Intent intent, int flags, int startId) {
         if(intent != null) {
             Log.e("MyLog", "onStartCommand");
-            final String sender = intent.getStringExtra(SENDER);
+            CurSender = intent.getStringExtra(SENDER);
             final String message = intent.getStringExtra(KEY_MESSAGE_TO_SERVER);
 
             if (message == null)
@@ -154,10 +165,11 @@ public class MyService extends Service {
                         return;
                     }
                     try {
+                        Log.e("MyLog", message);
                         PrintWriter pw = new PrintWriter(socket.getOutputStream());
-                        pw.write(sender + "\n");
                         pw.write(message + "\n");
                         pw.flush();
+                        //Log.e("MyLog", "отправил сообщение на сервер");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

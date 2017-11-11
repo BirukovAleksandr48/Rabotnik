@@ -6,8 +6,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -40,7 +44,7 @@ public class PostEditFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.e("MyLog", "onCreate");
+        setHasOptionsMenu(true);
 
         String jsonString = getArguments().getString(KEY_DATA);
         if(jsonString != null){
@@ -67,18 +71,18 @@ public class PostEditFragment extends Fragment {
         etCity.setText(mPoster.getCity());
         etSallary.setText(mPoster.getSallary());
 
-        Intent i = new Intent(getContext(), MyService.class);
-        i.putExtra(MyService.KEY_COMMAND_TYPE, MyService.KEY_COMMAND_GET_CATEGORIES);
+        MesToServer mts = new MesToServer(MyService.KEY_COMMAND_GET_CATEGORIES, null);     //Теперь запрашиваем список категорий
+        String jsonMes = new Gson().toJson(mts);
+        Intent i = new Intent(getActivity(), MyService.class);
+        i.putExtra(MyService.KEY_MESSAGE_TO_SERVER, jsonMes);
         i.putExtra(MyService.SENDER, MyService.SENDER_PEF);
         getActivity().startService(i);
-
 
         return v;
     }
 
     @Override
     public void onDestroyView() {
-
         super.onDestroyView();
     }
 
@@ -90,21 +94,17 @@ public class PostEditFragment extends Fragment {
             int what = msg.what;
 
             if(what == MyService.KEY_RETURN_CATEGORIES){
-                Log.e("MyLog", "categoriest returned");
                 Bundle bundle = msg.getData();
-                String jsonString = bundle.getString(MyService.KEY_MESSAGE_TO_SERVER);
-
+                String jsonString = bundle.getString(MyService.KEY_JSON_RESULT);
                 Type listType = new TypeToken<ArrayList<String>>(){}.getType();
                 ArrayList<String> arrayList = new Gson().fromJson(jsonString, listType);
                 data = new String[arrayList.size()];
-                Log.e("MyLog", mPoster.getCategory());
                 int curCat = -1;
                 for(int i = 0; i < arrayList.size(); i++){
                     data[i] = arrayList.get(i);
-                    if(mPoster.getCategory() == arrayList.get(i)){
+                    if(mPoster.getCategory() != null && mPoster.getCategory().equals(arrayList.get(i))){
                         curCat = i;
                     }
-                    Log.e("MyLog", data[i]);
                 }
 
                 ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, data);
@@ -114,5 +114,46 @@ public class PostEditFragment extends Fragment {
                     mSpinner.setSelection(curCat);
             }
         }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
+        super.onCreateOptionsMenu(menu, menuInflater);
+        menuInflater.inflate(R.menu.menu_edit_post, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_item_save_post:
+                mPoster.setTitle(etTitle.getText().toString());
+                mPoster.setBody(etDescription.getText().toString());
+                mPoster.setSallary(etSallary.getText().toString());
+                mPoster.setCity(etCity.getText().toString());
+                mPoster.setCategory(data[mSpinner.getSelectedItemPosition()]);
+
+                String data = new Gson().toJson(mPoster);
+
+                MesToServer mts = new MesToServer(MyService.KEY_COMMAND_SAVE_RESUME, data);     //Теперь запрашиваем список категорий
+                String jsonMes = new Gson().toJson(mts);
+                Intent i = new Intent(getActivity(), MyService.class);
+                i.putExtra(MyService.KEY_MESSAGE_TO_SERVER, jsonMes);
+                i.putExtra(MyService.SENDER, MyService.SENDER_PEF);
+                getActivity().startService(i);
+                break;
+            case R.id.menu_item_delete_post:
+                String data2 = new Gson().toJson(mPoster);
+
+                MesToServer mts2 = new MesToServer(MyService.KEY_COMMAND_DELETE_RESUME, data2);     //Теперь запрашиваем список категорий
+                String jsonMes2 = new Gson().toJson(mts2);
+                Intent i2 = new Intent(getActivity(), MyService.class);
+                i2.putExtra(MyService.KEY_MESSAGE_TO_SERVER, jsonMes2);
+                i2.putExtra(MyService.SENDER, MyService.SENDER_PEF);
+                getActivity().startService(i2);
+
+                getActivity().finish();
+                break;
+        }
+        return false;
     }
 }

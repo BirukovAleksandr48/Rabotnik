@@ -28,7 +28,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 
-public class WorkerFragment extends Fragment {
+public class FragmentFindResume extends Fragment {
     RecyclerView recFav, recAll;
     ArrayList <Poster> mPosters;
     ImageButton btnAdd;
@@ -41,9 +41,11 @@ public class WorkerFragment extends Fragment {
     public static final int REQUEST_CODE_CITY = 2;
     public static final int REQUEST_CODE_SALLARY = 3;
     FindPost mFindPost = new FindPost();
+    User mUser;
 
-    public static WorkerFragment newInstance(){
-        WorkerFragment fragement = new WorkerFragment();
+    public static FragmentFindResume newInstance(){
+        Log.e("MyLog", "Создал обьект фрагмента с поиском резюме");
+        FragmentFindResume fragement = new FragmentFindResume();
         return fragement;
     }
 
@@ -54,11 +56,12 @@ public class WorkerFragment extends Fragment {
         mPosters = new ArrayList<>();
         handler = new MyHandler();
         setHasOptionsMenu(true);
+        mUser = ((MainActivity) getActivity()).getUser();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Log.e("MyLog", "onCreateView");
+        Log.e("MyLog", "отобразил фрагмент поиска резюме");
         View v = inflater.inflate(R.layout.resume_layout, container, false);
 
         recAll = (RecyclerView) v.findViewById(R.id.rec_view_all);
@@ -85,8 +88,7 @@ public class WorkerFragment extends Fragment {
                 openDialogSallary();
             }
         });
-        getActivity().setTitle("Поиск вакансий");
-        getResumes();
+        getActivity().setTitle("Искать резюме");
         getCategories();
         return v;
     }
@@ -148,7 +150,7 @@ public class WorkerFragment extends Fragment {
     public class MyHandler extends Handler {
         @Override
         public void handleMessage(Message msg) {
-            Log.e("MyLog", "handleMessage");
+            Log.e("MyLog", "Словил сообщение в фрагменте поиска резюме");
             super.handleMessage(msg);
             int what = msg.what;
 
@@ -182,8 +184,9 @@ public class WorkerFragment extends Fragment {
         getActivity().startService(i);
     }
 
-    public void getResumes(){
-        MesToServer mts = new MesToServer(MyService.KEY_COMMAND_GET_RESUMES, null);
+    public void findPosters(){
+        String data = new Gson().toJson(mFindPost);
+        MesToServer mts = new MesToServer(MyService.KEY_COMMAND_FIND_RESUMES, data);
         String jsonMes = new Gson().toJson(mts);
         Intent i = new Intent(getActivity(), MyService.class);
         i.putExtra(MyService.KEY_MESSAGE_TO_SERVER, jsonMes);
@@ -191,9 +194,9 @@ public class WorkerFragment extends Fragment {
         getActivity().startService(i);
     }
 
-    public void findPosters(){
-        String data = new Gson().toJson(mFindPost);
-        MesToServer mts = new MesToServer(MyService.KEY_COMMAND_FIND_RESUMES, data);
+    public void toggleFavorite(Poster mPoster){
+        String data = new Gson().toJson(mPoster);
+        MesToServer mts = new MesToServer(MyService.KEY_COMMAND_TOGGLE_FAV, data);
         String jsonMes = new Gson().toJson(mts);
         Intent i = new Intent(getActivity(), MyService.class);
         i.putExtra(MyService.KEY_MESSAGE_TO_SERVER, jsonMes);
@@ -213,12 +216,19 @@ public class WorkerFragment extends Fragment {
             tvSallary = (TextView) itemView.findViewById(R.id.tv_sallary);
             btnFav = (ImageButton) itemView.findViewById(R.id.btn_fav);
 
+            btnFav.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    toggleFavorite(mPoster);
+                }
+            });
+
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     String json = new Gson().toJson(mPoster);
                     Log.e("MyLog", "jsonString = " + json);
-                    Intent i = PostEditActivity.newIntent(getActivity(), json);
+                    Intent i = PostShowActivity.newIntent(getActivity(), json);
                     startActivity(i);
                 }
             });
@@ -229,6 +239,36 @@ public class WorkerFragment extends Fragment {
             tvTitle.setText(mPoster.getTitle());
             tvSallary.setText(mPoster.getSallary());
             tvCity.setText(mPoster.getCity());
+
+            setActiv(btnFav, mPoster);
+
+            btnFav.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Poster poster = new Poster();
+                    poster.setIdCreator(mUser.getId());
+                    poster.setId(mPoster.getId());
+                    String data = new Gson().toJson(poster);
+
+                    MesToServer mts = new MesToServer(MyService.KEY_COMMAND_TOGGLE_FAV, data);
+                    String jsonMes = new Gson().toJson(mts);
+                    Intent i = new Intent(getActivity(), MyService.class);
+                    i.putExtra(MyService.KEY_MESSAGE_TO_SERVER, jsonMes);
+                    i.putExtra(MyService.SENDER, MyService.SENDER_WF);
+                    getActivity().startService(i);
+
+                    mPoster.setFavorite(!mPoster.isFavorite());
+                    setActiv(btnFav, mPoster);
+                }
+            });
+        }
+    }
+
+    public void setActiv(ImageButton btn, Poster p){
+        if(p.isFavorite()){
+            btn.setImageResource(R.drawable.ic_action_delete_from_favorite);
+        }else{
+            btn.setImageResource(R.drawable.ic_action_add_to_favorite);
         }
     }
 
@@ -281,5 +321,11 @@ public class WorkerFragment extends Fragment {
                         return false;
                     }
                 });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        findPosters();
     }
 }

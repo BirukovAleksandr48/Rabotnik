@@ -35,6 +35,7 @@ public class SignInFragment extends Fragment{
         Log.e("MyLog", "onCreateFragment");
         super.onCreate(savedInstanceState);
         handler = new MyHandler();
+        setHasOptionsMenu(false);
     }
 
     @Override
@@ -88,21 +89,16 @@ public class SignInFragment extends Fragment{
                 String data = bundle.getString(MyService.KEY_JSON_RESULT);
                 User user = new Gson().fromJson(data, User.class);
                 if(user.getId() > 0){                       //значит такого пользователя нашли
-                    Log.e("MyLog", "1");
                     PreferenceManager.getDefaultSharedPreferences(getActivity())
                             .edit()
                             .putInt(SignActivity.PREF_CURRENT_USER, user.getId())
                             .apply();
-                    Log.e("MyLog", "2");
                     Intent intent = MainActivity.newIntent(getActivity(), data);
-                    startActivity(intent);
-                    Log.e("MyLog", "3");
+                    startActivityForResult(intent, ((SignActivity)getActivity()).request);
                 }else{                                      //значит не нашли
                     tvNotFound.setVisibility(View.VISIBLE);
                     etPassword.setText("");
                 }
-            }else if(what == MyService.KEY_CONNECTED){
-
             }
         }
     }

@@ -12,6 +12,7 @@
         android:layout_alignParentRight="true"
         app:srcCompat="@drawable/ic_action_add_to_favorite"
         android:background="#00FFFFFF"/>
+
     <TextView
         android:id="@+id/tv_title"
         android:layout_width="match_parent"

@@ -4,88 +4,106 @@
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:gravity="center"
               android:padding="40dp">
 
-
     <TextView
-        android:id="@+id/tv_not_found"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Пользователь не найден."
-        android:textAlignment="center"
-        android:textSize="16dp"
-        android:textColor="#CC0000"/>
+        android:text="Rabotnik"
+        android:textSize="60dp"
+        android:textColor="#307932"
+        android:gravity="center"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="система поиска резюме и вакансий"
+        android:textColor="#429c45"
+        android:gravity="center"/>
 
     <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="60dp"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/tv_not_found"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center">
-
-            <TextView
-                android:id="@+id/textView2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Логин: "
-                android:textAlignment="textEnd"
-                android:textSize="16dp"/>
-
-            <EditText
-                android:id="@+id/et_login"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:ems="10"
-                android:inputType="textPersonName"
-                android:text="q"/>
-
-        </LinearLayout>
+            android:text="Пользователь не найден."
+            android:textAlignment="center"
+            android:textSize="16dp"
+            android:textColor="#CC0000"/>
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center">
-
-            <TextView
-                android:id="@+id/textView4"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Пароль: "
-                android:textAlignment="textEnd"
-                android:textSize="16dp"/>
+                android:orientation="horizontal"
+                android:gravity="center">
 
-            <EditText
-                android:id="@+id/et_pass"
-                android:layout_width="wrap_content"
+                <TextView
+                    android:id="@+id/textView2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Логин: "
+                    android:textAlignment="textEnd"
+                    android:textSize="16dp"/>
+
+                <EditText
+                    android:id="@+id/et_login"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="best_coder"
+                    android:ems="10"
+                    android:inputType="textPersonName"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:ems="10"
-                android:text="q"
-                android:inputType="textPassword"/>
-        </LinearLayout>
+                android:orientation="horizontal"
+                android:gravity="center">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center">
+                <TextView
+                    android:id="@+id/textView4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Пароль: "
+                    android:textAlignment="textEnd"
+                    android:textSize="16dp"/>
 
-            <Button
-                android:id="@+id/button_signup"
-                android:layout_width="wrap_content"
+                <EditText
+                    android:id="@+id/et_pass"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ems="10"
+                    android:text="q"
+                    android:inputType="textPassword"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Зарегистрироваться"
-                android:textSize="12dp"/>
+                android:orientation="horizontal"
+                android:gravity="center">
 
-            <Button
-                android:id="@+id/button_signin"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Войти"
-                android:textSize="12dp"/>
-        </LinearLayout>
+                <Button
+                    android:id="@+id/button_signup"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Зарегистрироваться"
+                    android:textSize="12dp"/>
 
+                <Button
+                    android:id="@+id/button_signin"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Войти"
+                    android:textSize="12dp"/>
+            </LinearLayout>
+    </LinearLayout>
 
 </LinearLayout>

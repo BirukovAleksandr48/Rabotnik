@@ -8,10 +8,12 @@ public class Poster {
     private String city;
     private String sallary;
     private String Category;
+    private boolean isFavorite;
 
     public Poster(int id, int idCreator, String title, String body,
-                  String city, String sallary, String Category) {
+                  String city, String sallary, String Category, boolean isFavorite) {
         super();
+
         this.id = id;
         this.idCreator = idCreator;
         this.title = title;
@@ -19,24 +21,20 @@ public class Poster {
         this.city = city;
         this.sallary = sallary;
         this.Category = Category;
+        this.isFavorite = isFavorite;
     }
-    public Poster() {
-        super();
-        this.id = 0;
-        this.idCreator = 0;
-        this.title = "";
-        this.body = "";
-        this.city = "";
-        this.sallary = "";
-        this.Category = "";
-    }
+
+    public Poster() {  }
+
 
     @Override
     public String toString() {
-        return "Resume [id=" + id + ", idCreator=" + idCreator + ", title="
+        return "Poster [id=" + id + ", idCreator=" + idCreator + ", title="
                 + title + ", body=" + body + ", city=" + city + ", sallary="
-                + sallary + ", idCategory=" + Category + "]";
+                + sallary + ", Category=" + Category + ", isFavorite="
+                + isFavorite + "]";
     }
+
     public int getId() {
         return id;
     }
@@ -79,5 +77,11 @@ public class Poster {
     public void setCategory(String Category) {
         this.Category = Category;
     }
+    public boolean isFavorite() {
+        return isFavorite;
+    }
 
+    public void setFavorite(boolean favorite) {
+        isFavorite = favorite;
+    }
 }

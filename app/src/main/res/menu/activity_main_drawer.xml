@@ -1,25 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <item android:title="Резюме">
+        <menu>
+            <item
+                android:id="@+id/nav_my_res"
+                android:icon="@drawable/ic_action_vacancy"
+                android:title="Мои резюме"/>
+            <item
+                android:id="@+id/nav_find_res"
+                android:icon="@drawable/ic_action_find"
+                android:title="Искать резюме"/>
+            <item
+                android:id="@+id/nav_fav_res"
+                android:icon="@drawable/ic_action_add_to_favorite"
+                android:title="Избранные резюме"/>
+        </menu>
+    </item>
+
+    <item android:title="Вакансии">
+        <menu>
+            <item
+                android:id="@+id/nav_my_vac"
+                android:icon="@drawable/ic_action_vacancy"
+                android:title="Мои вакансии"/>
+            <item
+                android:id="@+id/nav_find_vac"
+                android:icon="@drawable/ic_action_find"
+                android:title="Искать вакансии"/>
+            <item
+                android:id="@+id/nav_fav_vac"
+                android:icon="@drawable/ic_action_add_to_favorite"
+                android:title="Избранные вакансии"/>
+        </menu>
+    </item>
+
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_camera"
-            android:icon="@drawable/ic_action_vacancy"
-            android:title="Режим соискателя"/>
-        <item
-            android:id="@+id/nav_gallery"
-            android:icon="@drawable/ic_action_vacancy"
-            android:title="Режим работодателя"/>
-        <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_action_settings"
-            android:title="Настройки"/>
-        <item
-            android:id="@+id/nav_manage"
+            android:id="@+id/nav_profile"
             android:icon="@drawable/ic_action_profile"
             android:title="Профиль"/>
         <item
-            android:id="@+id/nav_share"
+            android:id="@+id/nav_exit"
             android:icon="@drawable/ic_action_exit"
             android:title="Выход"/>
     </group>

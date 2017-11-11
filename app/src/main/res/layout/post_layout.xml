@@ -11,12 +11,12 @@
         android:background="#6fae72"
         android:padding="7dp"/>
 
-    <EditText android:id="@+id/et_title"
+    <TextView android:id="@+id/tv_title"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:layout_marginLeft="16dp"
-              android:layout_marginRight="16dp"
-              android:hint="Enter a title"/>
+              android:layout_margin="6dp"
+              android:textSize="16dp"
+              android:hint="Programmer"/>
 
     <TextView
         android:layout_width="match_parent"
@@ -26,12 +26,12 @@
         android:background="#6fae72"
         android:padding="7dp"/>
 
-    <EditText android:id="@+id/et_sallary"
+    <TextView android:id="@+id/tv_sallary"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:layout_marginLeft="16dp"
-              android:layout_marginRight="16dp"
-              android:hint="Enter a sallary"/>
+              android:layout_margin="6dp"
+              android:textSize="16dp"
+              android:hint="1000$"/>
 
     <TextView
         android:layout_width="match_parent"
@@ -41,12 +41,12 @@
         android:background="#6fae72"
         android:padding="7dp"/>
 
-    <EditText android:id="@+id/et_city"
+    <TextView android:id="@+id/tv_city"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:layout_marginLeft="16dp"
-              android:layout_marginRight="16dp"
-              android:hint="Enter a city"/>
+              android:layout_margin="6dp"
+              android:textSize="16dp"
+              android:hint="New York"/>
 
     <TextView
         android:layout_width="match_parent"
@@ -56,12 +56,11 @@
         android:background="#6fae72"
         android:padding="7dp"/>
 
-    <Spinner android:id="@+id/spinner_category"
+    <TextView android:id="@+id/tv_category"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:layout_marginLeft="16dp"
-              android:layout_marginRight="16dp"
-             android:layout_margin="7dp"/>
+              android:layout_margin="6dp"
+              android:textSize="16dp"/>
 
     <TextView
         android:layout_width="match_parent"
@@ -71,14 +70,14 @@
         android:background="#6fae72"
         android:padding="7dp"/>
 
-    <EditText
-        android:id="@+id/et_description"
+    <TextView
+        android:id="@+id/tv_description"
         android:gravity="top|left"
         android:inputType="textMultiLine"
         android:layout_height="match_parent"
         android:layout_width="match_parent"
         android:scrollHorizontally="false"
+        android:textSize="16dp"
         android:layout_weight="1"
-        android:hint="Enter a description"
         />
 </LinearLayout>

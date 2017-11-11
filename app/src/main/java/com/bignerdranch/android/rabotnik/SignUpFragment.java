@@ -18,7 +18,7 @@ import com.google.gson.Gson;
 
 public class SignUpFragment extends Fragment{
     EditText etLogin, etPassword, etName, etPassword2;
-    Button btnSignUp;
+    Button btnSignUp, btnBack;
     TextView tvPasswordNotEqual;
 
     public static Handler handler;
@@ -33,6 +33,7 @@ public class SignUpFragment extends Fragment{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         handler = new MyHandler();
+        setHasOptionsMenu(false);
     }
 
     @Override
@@ -40,6 +41,7 @@ public class SignUpFragment extends Fragment{
         View v = inflater.inflate(R.layout.layout_sign_up, container, false);
 
         btnSignUp = (Button) v.findViewById(R.id.button_signup);
+        btnBack = (Button) v.findViewById(R.id.button_back);
         etLogin = (EditText) v.findViewById(R.id.et_login);
         etPassword = (EditText) v.findViewById(R.id.et_pass);
         etName = (EditText) v.findViewById(R.id.et_name);
@@ -58,9 +60,10 @@ public class SignUpFragment extends Fragment{
 
                 User user = new User(0, etName.getText().toString(), etLogin.getText().toString(), etPassword.getText().toString(), "user");
                 String jsonData = new Gson().toJson(user);
+                Log.e("MyLog", jsonData);
                 MesToServer mts = new MesToServer(MyService.KEY_COMMAND_ADD_USER, jsonData);
                 String jsonMes = new Gson().toJson(mts);
-
+                Log.e("MyLog", jsonMes);
                 Intent i = new Intent(getActivity(), MyService.class);
                 i.putExtra(MyService.KEY_MESSAGE_TO_SERVER, jsonMes);
                 i.putExtra(MyService.SENDER, MyService.SENDER_SUF);
@@ -69,6 +72,15 @@ public class SignUpFragment extends Fragment{
         });
 
         tvPasswordNotEqual.setVisibility(View.INVISIBLE);
+
+        btnBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Fragment f = SignInFragment.newInstance();
+                SignActivity activity = (SignActivity) getActivity();
+                activity.setFragment(f);
+            }
+        });
 
         return v;
     }
@@ -91,7 +103,7 @@ public class SignUpFragment extends Fragment{
                             .apply();
 
                     Intent intent = MainActivity.newIntent(getActivity(), data);
-                    startActivity(intent);
+                    startActivityForResult(intent, ((SignActivity)getActivity()).request);
                 }else{                                      //значит не добавили
                     etPassword.setText("");
                 }

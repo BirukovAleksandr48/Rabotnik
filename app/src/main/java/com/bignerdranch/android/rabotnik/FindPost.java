@@ -5,15 +5,10 @@ public class FindPost {
     String city;
     String category;
     String sallary;
-
-    public FindPost(String word, String city, String category, String sallary) {
-        this.word = word;
-        this.city = city;
-        this.category = category;
-        this.sallary = sallary;
-    }
+    int idCreator;
 
     public FindPost() {
+        idCreator = 0;
     }
 
     public String getWord() {
@@ -47,4 +42,13 @@ public class FindPost {
     public void setSallary(String sallary) {
         this.sallary = sallary;
     }
+
+    public int getIdCreator() {
+        return idCreator;
+    }
+
+    public void setIdCreator(int idCreator) {
+        this.idCreator = idCreator;
+    }
+
 }
