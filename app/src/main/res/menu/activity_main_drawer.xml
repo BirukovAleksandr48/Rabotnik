@@ -37,9 +37,15 @@
 
     <group android:checkableBehavior="single">
         <item
+            android:id="@+id/nav_radio"
+            android:icon="@drawable/ic_action_radio"
+            android:title="Радио"/>
+
+        <item
             android:id="@+id/nav_profile"
             android:icon="@drawable/ic_action_profile"
             android:title="Профиль"/>
+
         <item
             android:id="@+id/nav_exit"
             android:icon="@drawable/ic_action_exit"

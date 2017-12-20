@@ -2,6 +2,8 @@ package com.bignerdranch.android.rabotnik;
 
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -19,9 +21,12 @@ import android.widget.TextView;
 
 import com.google.gson.Gson;
 
+import java.io.IOException;
+
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     public final static String KEY_DATA_INTENT = "KEY_DATA_INTENT";
     private static User mUser;
+    public MediaPlayer mMediaPlayer;
 
     public static Intent newIntent(Context context, String user){
         Log.e("MyLog", "Создал экземпляр MainActivity");
@@ -38,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Intent intent = getIntent();
         String jsonUser = intent.getStringExtra(KEY_DATA_INTENT);
         mUser = new Gson().fromJson(jsonUser, User.class);
+        mMediaPlayer = new MediaPlayer();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -93,13 +99,31 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (id == R.id.nav_fav_res) {
             fragmentClass = FragmentFavResume.class;
         } else if (id == R.id.nav_my_vac) {
-
+            fragmentClass = FragmentMyVacancy.class;
         } else if (id == R.id.nav_find_vac) {
-
+            fragmentClass = FragmentFindVacancy.class;
         }else if (id == R.id.nav_fav_vac) {
-
+            fragmentClass = FragmentFavVacancy.class;
         }else if (id == R.id.nav_profile) {
             fragmentClass = FragmentUserProfile.class;
+        }else if (id == R.id.nav_radio) {
+            try {
+                if(mMediaPlayer.isPlaying()){
+                    mMediaPlayer.stop();
+                }else {
+                    mMediaPlayer = new MediaPlayer();
+                    mMediaPlayer.setDataSource("http://cast.radiogroup.com.ua:8000/retro");
+                    mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                    mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                        @Override
+                        public void onPrepared(MediaPlayer mp) {
+                            mp.start();
+                        }
+                    });
+                    mMediaPlayer.prepareAsync();
+                }
+            } catch (IOException e) {e.printStackTrace();}
+            return false;
         }else if (id == R.id.nav_exit) {
             Log.e("MyLog", "кнопка выйти нажата");
             setResult(SignActivity.code_change_user);
@@ -118,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Выделяем выбранный пункт меню в шторке
         //item.setChecked(true);
         // Выводим выбранный пункт в заголовке
-        setTitle(item.getTitle());
+        //setTitle(item.getTitle());
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);

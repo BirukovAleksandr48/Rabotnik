@@ -29,6 +29,11 @@ public class MyService extends Service {
     public static final String KEY_COMMAND_SAVE_RESUME = "KEY_COMMAND_SAVE_RESUME";
     public static final String KEY_COMMAND_DELETE_RESUME = "KEY_COMMAND_DELETE_RESUME";
     public static final String KEY_COMMAND_GET_FAV_RESUMES = "KEY_COMMAND_GET_FAV_RESUMES";
+    public static final String KEY_COMMAND_GET_FAV_VACANCIES = "KEY_COMMAND_GET_FAV_VACANCIES";
+    public static final String KEY_COMMAND_FIND_VACANCIES = "KEY_COMMAND_FIND_VACANCIES";
+    public static final String KEY_COMMAND_TOGGLE_FAV_VACANCY = "KEY_COMMAND_TOGGLE_FAV_VACANCY";
+    public static final String KEY_COMMAND_SAVE_VACANCY = "KEY_COMMAND_SAVE_VACANCY";
+    public static final String KEY_COMMAND_DELETE_VACANCY = "KEY_COMMAND_DELETE_VACANCY";
 
     public static final int KEY_UPDATE = 1111;
     public static final int KEY_CONNECTED = 2222;
@@ -43,6 +48,9 @@ public class MyService extends Service {
     public static final String SENDER_SA = "SENDER_SA";
     public static final String SENDER_MR = "SENDER_MR";
     public static final String SENDER_FavR = "SENDER_FavR";
+    public static final String SENDER_FavV = "SENDER_FavV";
+    public static final String SENDER_FIV = "SENDER_FIV";
+    public static final String SENDER_MV = "SENDER_MV";
 
     private String CurSender = null;
 
@@ -138,6 +146,34 @@ public class MyService extends Service {
                                 mes.setData(bundle);
                                 FragmentFavResume.handler.sendMessage(mes);
                                 Log.e("MyLog", "Сообщение в myresume.");
+                            }else if(CurSender.equals(SENDER_FavV)){
+                                Message mes = FragmentFavVacancy.handler.obtainMessage();
+                                mes.what = KEY_UPDATE;
+                                Bundle bundle = new Bundle();
+                                bundle.putString(KEY_JSON_RESULT, jsonString);
+                                mes.setData(bundle);
+                                FragmentFavVacancy.handler.sendMessage(mes);
+                            }else if(CurSender.equals(SENDER_FIV)){
+                                Message mes = FragmentFindVacancy.handler.obtainMessage();
+
+                                if(mts.getCommand().equals(KEY_COMMAND_FIND_VACANCIES)
+                                        || mts.getCommand().equals(KEY_COMMAND_TOGGLE_FAV_VACANCY)){
+                                    mes.what = KEY_UPDATE;
+                                }else if(mts.getCommand().equals(KEY_COMMAND_GET_CATEGORIES)){
+                                    mes.what = KEY_RETURN_CATEGORIES;
+                                }
+
+                                Bundle bundle = new Bundle();
+                                bundle.putString(KEY_JSON_RESULT, jsonString);
+                                mes.setData(bundle);
+                                FragmentFindVacancy.handler.sendMessage(mes);
+                            }else if(CurSender.equals(SENDER_MV)){
+                                Message mes = FragmentMyVacancy.handler.obtainMessage();
+                                mes.what = KEY_UPDATE;
+                                Bundle bundle = new Bundle();
+                                bundle.putString(KEY_JSON_RESULT, jsonString);
+                                mes.setData(bundle);
+                                FragmentMyVacancy.handler.sendMessage(mes);
                             }
                             Log.e("MyLog", "Сообщение в активити отправлено.");
                         }
@@ -150,10 +186,10 @@ public class MyService extends Service {
     @Override
     public int onStartCommand(final Intent intent, int flags, int startId) {
         if(intent != null) {
-            Log.e("MyLog", "onStartCommand");
+
             CurSender = intent.getStringExtra(SENDER);
             final String message = intent.getStringExtra(KEY_MESSAGE_TO_SERVER);
-
+            Log.e("MyLog", "onStartCommand" + message);
             if (message == null)
                 return START_NOT_STICKY;
 
@@ -165,7 +201,6 @@ public class MyService extends Service {
                         return;
                     }
                     try {
-                        Log.e("MyLog", message);
                         PrintWriter pw = new PrintWriter(socket.getOutputStream());
                         pw.write(message + "\n");
                         pw.flush();

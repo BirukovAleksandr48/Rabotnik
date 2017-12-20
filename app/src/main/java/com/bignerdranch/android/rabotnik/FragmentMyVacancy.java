@@ -1,8 +1,10 @@
 package com.bignerdranch.android.rabotnik;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -16,6 +18,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -25,18 +28,18 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
-public class FragmentFavResume extends Fragment{
+public class FragmentMyVacancy extends Fragment {
     RecyclerView recAll;
-    ArrayList<Poster> mPosters;
+    ArrayList <Poster> mPosters;
     public static Handler handler = new Handler();
     RecyclerView.Adapter adapter;
     FindPost mFindPost = new FindPost();
     User mUser;
     SwipeRefreshLayout mSwipeRefreshLayout;
 
-    public static FragmentFavResume newInstance(){
-        Log.e("MyLog", "Создал обьект избранные резюме");
-        FragmentFavResume fragement = new FragmentFavResume();
+    public static FragmentMyVacancy newInstance(){
+        Log.e("MyLog", "Создал обьект мои резюме");
+        FragmentMyVacancy fragement = new FragmentMyVacancy();
         return fragement;
     }
 
@@ -53,7 +56,7 @@ public class FragmentFavResume extends Fragment{
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Log.e("MyLog", "отобразил фрагмент избранные резюме");
+        Log.e("MyLog", "отобразил фрагмент моих vacancy");
         View v = inflater.inflate(R.layout.my_resume_layout, container, false);
 
         recAll = (RecyclerView) v.findViewById(R.id.rec_view_all);
@@ -65,14 +68,14 @@ public class FragmentFavResume extends Fragment{
                 findPosters();
             }
         });
-        getActivity().setTitle("Избранные резюме");
+        getActivity().setTitle("Мои вакансии");
         return v;
     }
 
     public class MyHandler extends Handler {
         @Override
         public void handleMessage(Message msg) {
-            Log.e("MyLog", "Словил сообщение в фрагменте избранных резюме");
+            Log.e("MyLog", "Словил сообщение в фрагменте моих вакансий");
             super.handleMessage(msg);
             int what = msg.what;
 
@@ -95,11 +98,11 @@ public class FragmentFavResume extends Fragment{
 
     public void findPosters(){
         String data = new Gson().toJson(mFindPost);
-        MesToServer mts = new MesToServer(MyService.KEY_COMMAND_GET_FAV_RESUMES, data);
+        MesToServer mts = new MesToServer(MyService.KEY_COMMAND_FIND_VACANCIES, data);
         String jsonMes = new Gson().toJson(mts);
         Intent i = new Intent(getActivity(), MyService.class);
         i.putExtra(MyService.KEY_MESSAGE_TO_SERVER, jsonMes);
-        i.putExtra(MyService.SENDER, MyService.SENDER_FavR);
+        i.putExtra(MyService.SENDER, MyService.SENDER_MV);
         getActivity().startService(i);
     }
 
@@ -120,7 +123,7 @@ public class FragmentFavResume extends Fragment{
                 public void onClick(View v) {
                     String json = new Gson().toJson(mPoster);
                     Log.e("MyLog", "jsonString = " + json);
-                    Intent i = PostShowActivity.newIntent(getActivity(), json);
+                    Intent i = PostEditActivity.newIntent(getActivity(), json, 1);
                     startActivity(i);
                 }
             });
@@ -141,11 +144,11 @@ public class FragmentFavResume extends Fragment{
                     poster.setId(mPoster.getId());
                     String data = new Gson().toJson(poster);
 
-                    MesToServer mts = new MesToServer(MyService.KEY_COMMAND_TOGGLE_FAV, data);
+                    MesToServer mts = new MesToServer(MyService.KEY_COMMAND_TOGGLE_FAV_VACANCY, data);
                     String jsonMes = new Gson().toJson(mts);
                     Intent i = new Intent(getActivity(), MyService.class);
                     i.putExtra(MyService.KEY_MESSAGE_TO_SERVER, jsonMes);
-                    i.putExtra(MyService.SENDER, MyService.SENDER_FavR);
+                    i.putExtra(MyService.SENDER, MyService.SENDER_MV);
                     getActivity().startService(i);
 
                     mPoster.setFavorite(!mPoster.isFavorite());
@@ -192,7 +195,7 @@ public class FragmentFavResume extends Fragment{
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
         super.onCreateOptionsMenu(menu, menuInflater);
-        menuInflater.inflate(R.menu.menu_find, menu);
+        menuInflater.inflate(R.menu.menu_my, menu);
 
         MenuItem searchItem = menu.findItem(R.id.menu_item_search);
         final SearchView searchView = (SearchView) searchItem.getActionView();
@@ -213,7 +216,20 @@ public class FragmentFavResume extends Fragment{
             }
         });
     }
-
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_item_new_post:
+                Poster poster = new Poster();
+                poster.setIdCreator(mUser.getId());
+                String json = new Gson().toJson(poster);
+                Intent i = PostEditActivity.newIntent(getActivity(), json, 1);
+                startActivity(i);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
     @Override
     public void onResume() {

@@ -8,7 +8,7 @@
         android:layout_height="wrap_content"
         style="?android:listSeparatorTextViewStyle"
         android:text="Title:"
-        android:background="#6fae72"
+        android:background="#196fae72"
         android:padding="7dp"/>
 
     <EditText android:id="@+id/et_title"
@@ -23,7 +23,7 @@
         android:layout_height="wrap_content"
         style="?android:listSeparatorTextViewStyle"
         android:text="Sallary:"
-        android:background="#6fae72"
+        android:background="#196fae72"
         android:padding="7dp"/>
 
     <EditText android:id="@+id/et_sallary"
@@ -38,7 +38,7 @@
         android:layout_height="wrap_content"
         style="?android:listSeparatorTextViewStyle"
         android:text="City:"
-        android:background="#6fae72"
+        android:background="#196fae72"
         android:padding="7dp"/>
 
     <EditText android:id="@+id/et_city"
@@ -52,8 +52,23 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         style="?android:listSeparatorTextViewStyle"
+        android:text="Email:"
+        android:background="#196fae72"
+        android:padding="7dp"/>
+
+    <EditText android:id="@+id/et_email"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginLeft="16dp"
+              android:layout_marginRight="16dp"
+              android:hint="Enter an email"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="?android:listSeparatorTextViewStyle"
         android:text="Category:"
-        android:background="#6fae72"
+        android:background="#196fae72"
         android:padding="7dp"/>
 
     <Spinner android:id="@+id/spinner_category"
@@ -68,7 +83,7 @@
         android:layout_height="wrap_content"
         style="?android:listSeparatorTextViewStyle"
         android:text="Description:"
-        android:background="#6fae72"
+        android:background="#196fae72"
         android:padding="7dp"/>
 
     <EditText

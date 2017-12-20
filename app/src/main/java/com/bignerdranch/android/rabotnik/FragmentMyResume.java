@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -34,6 +35,7 @@ public class FragmentMyResume extends Fragment {
     RecyclerView.Adapter adapter;
     FindPost mFindPost = new FindPost();
     User mUser;
+    SwipeRefreshLayout mSwipeRefreshLayout;
 
     public static FragmentMyResume newInstance(){
         Log.e("MyLog", "Создал обьект мои резюме");
@@ -59,6 +61,13 @@ public class FragmentMyResume extends Fragment {
 
         recAll = (RecyclerView) v.findViewById(R.id.rec_view_all);
         recAll.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mSwipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.swipe);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                findPosters();
+            }
+        });
 
         getActivity().setTitle("Мои резюме");
         return v;
@@ -78,6 +87,7 @@ public class FragmentMyResume extends Fragment {
                 Type listType = new TypeToken<ArrayList<Poster>>(){}.getType();
                 mPosters = new Gson().fromJson(jsonString, listType);
                 updateUI();
+                mSwipeRefreshLayout.setRefreshing(false);
             }
         }
     }
@@ -114,7 +124,7 @@ public class FragmentMyResume extends Fragment {
                 public void onClick(View v) {
                     String json = new Gson().toJson(mPoster);
                     Log.e("MyLog", "jsonString = " + json);
-                    Intent i = PostEditActivity.newIntent(getActivity(), json);
+                    Intent i = PostEditActivity.newIntent(getActivity(), json, 0);
                     startActivity(i);
                 }
             });
@@ -214,7 +224,7 @@ public class FragmentMyResume extends Fragment {
                 Poster poster = new Poster();
                 poster.setIdCreator(mUser.getId());
                 String json = new Gson().toJson(poster);
-                Intent i = PostEditActivity.newIntent(getActivity(), json);
+                Intent i = PostEditActivity.newIntent(getActivity(), json, 0);
                 startActivity(i);
                 return true;
             default:

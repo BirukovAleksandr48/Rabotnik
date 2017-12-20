@@ -8,7 +8,7 @@
         android:layout_height="wrap_content"
         style="?android:listSeparatorTextViewStyle"
         android:text="Title:"
-        android:background="#6fae72"
+        android:background="#196fae72"
         android:padding="7dp"/>
 
     <TextView android:id="@+id/tv_title"
@@ -23,7 +23,7 @@
         android:layout_height="wrap_content"
         style="?android:listSeparatorTextViewStyle"
         android:text="Sallary:"
-        android:background="#6fae72"
+        android:background="#196fae72"
         android:padding="7dp"/>
 
     <TextView android:id="@+id/tv_sallary"
@@ -38,7 +38,7 @@
         android:layout_height="wrap_content"
         style="?android:listSeparatorTextViewStyle"
         android:text="City:"
-        android:background="#6fae72"
+        android:background="#196fae72"
         android:padding="7dp"/>
 
     <TextView android:id="@+id/tv_city"
@@ -52,8 +52,22 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         style="?android:listSeparatorTextViewStyle"
+        android:text="Email:"
+        android:background="#196fae72"
+        android:padding="7dp"/>
+
+    <TextView android:id="@+id/tv_email"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_margin="6dp"
+              android:textSize="16dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="?android:listSeparatorTextViewStyle"
         android:text="Category:"
-        android:background="#6fae72"
+        android:background="#196fae72"
         android:padding="7dp"/>
 
     <TextView android:id="@+id/tv_category"
@@ -67,7 +81,7 @@
         android:layout_height="wrap_content"
         style="?android:listSeparatorTextViewStyle"
         android:text="Description:"
-        android:background="#6fae72"
+        android:background="#196fae72"
         android:padding="7dp"/>
 
     <TextView

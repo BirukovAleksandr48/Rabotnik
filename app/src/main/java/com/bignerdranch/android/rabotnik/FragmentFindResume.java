@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -42,6 +43,7 @@ public class FragmentFindResume extends Fragment {
     public static final int REQUEST_CODE_SALLARY = 3;
     FindPost mFindPost = new FindPost();
     User mUser;
+    SwipeRefreshLayout mSwipeRefreshLayout;
 
     public static FragmentFindResume newInstance(){
         Log.e("MyLog", "Создал обьект фрагмента с поиском резюме");
@@ -69,6 +71,7 @@ public class FragmentFindResume extends Fragment {
         btnCateg = (Button) v.findViewById(R.id.btn_filter_category);
         btnSallary = (Button) v.findViewById(R.id.btn_filter_sallary);
         btnCity = (Button) v.findViewById(R.id.btn_filter_city);
+        mSwipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.swipe);
 
         btnCateg.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -86,6 +89,12 @@ public class FragmentFindResume extends Fragment {
             @Override
             public void onClick(View v) {
                 openDialogSallary();
+            }
+        });
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                findPosters();
             }
         });
         getActivity().setTitle("Искать резюме");
@@ -160,6 +169,7 @@ public class FragmentFindResume extends Fragment {
                 Type listType = new TypeToken<ArrayList<Poster>>(){}.getType();
                 mPosters = new Gson().fromJson(jsonString, listType);
                 updateUI();
+                mSwipeRefreshLayout.setRefreshing(false);
             }else if(what == MyService.KEY_RETURN_CATEGORIES){
                 Bundle bundle = msg.getData();
                 String jsonString = bundle.getString(MyService.KEY_JSON_RESULT);

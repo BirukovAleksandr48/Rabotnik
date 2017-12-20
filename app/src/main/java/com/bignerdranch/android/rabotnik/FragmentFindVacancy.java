@@ -1,8 +1,10 @@
 package com.bignerdranch.android.rabotnik;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -16,6 +18,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -25,18 +28,26 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
-public class FragmentFavResume extends Fragment{
-    RecyclerView recAll;
-    ArrayList<Poster> mPosters;
-    public static Handler handler = new Handler();
+
+public class FragmentFindVacancy extends Fragment {
+    RecyclerView recFav, recAll;
+    ArrayList <Poster> mPosters;
+    ImageButton btnAdd;
+    public static Handler handler = new Handler(Looper.getMainLooper());
     RecyclerView.Adapter adapter;
+    ArrayList<String> mCategories = new ArrayList<>();
+    ArrayList<String> mSallaries = new ArrayList<>();
+    Button btnCateg, btnSallary, btnCity;
+    public static final int REQUEST_CODE_CATEGORY = 1;
+    public static final int REQUEST_CODE_CITY = 2;
+    public static final int REQUEST_CODE_SALLARY = 3;
     FindPost mFindPost = new FindPost();
     User mUser;
     SwipeRefreshLayout mSwipeRefreshLayout;
 
-    public static FragmentFavResume newInstance(){
-        Log.e("MyLog", "Создал обьект избранные резюме");
-        FragmentFavResume fragement = new FragmentFavResume();
+    public static FragmentFindVacancy newInstance(){
+        Log.e("MyLog", "Создал обьект фрагмента с поиском резюме");
+        FragmentFindVacancy fragement = new FragmentFindVacancy();
         return fragement;
     }
 
@@ -48,16 +59,18 @@ public class FragmentFavResume extends Fragment{
         handler = new MyHandler();
         setHasOptionsMenu(true);
         mUser = ((MainActivity) getActivity()).getUser();
-        mFindPost.setIdCreator(mUser.getId());
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Log.e("MyLog", "отобразил фрагмент избранные резюме");
-        View v = inflater.inflate(R.layout.my_resume_layout, container, false);
+        Log.e("MyLog", "отобразил фрагмент поиска резюме");
+        View v = inflater.inflate(R.layout.resume_layout, container, false);
 
         recAll = (RecyclerView) v.findViewById(R.id.rec_view_all);
         recAll.setLayoutManager(new LinearLayoutManager(getActivity()));
+        btnCateg = (Button) v.findViewById(R.id.btn_filter_category);
+        btnSallary = (Button) v.findViewById(R.id.btn_filter_sallary);
+        btnCity = (Button) v.findViewById(R.id.btn_filter_city);
         mSwipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.swipe);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -65,25 +78,104 @@ public class FragmentFavResume extends Fragment{
                 findPosters();
             }
         });
-        getActivity().setTitle("Избранные резюме");
+
+        btnCateg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openDialogCategories();
+            }
+        });
+        btnCity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openDialogCity();
+            }
+        });
+        btnSallary.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openDialogSallary();
+            }
+        });
+        getActivity().setTitle("Искать вакансии");
+        getCategories();
         return v;
+    }
+
+    public void openDialogCategories(){
+        ListDialog fragment = ListDialog.newInstance(mCategories);
+        fragment.setTargetFragment(this, REQUEST_CODE_CATEGORY);
+        fragment.show(getFragmentManager(), fragment.getClass().getName());
+    }
+    public void openDialogCity(){
+        CityDialog fragment = new CityDialog();
+        fragment.setTargetFragment(this, REQUEST_CODE_CITY);
+        fragment.show(getFragmentManager(), fragment.getClass().getName());
+    }
+    public void openDialogSallary(){
+        SallaryDialog fragment = new SallaryDialog();
+        fragment.setTargetFragment(this, REQUEST_CODE_SALLARY);
+        fragment.show(getFragmentManager(), fragment.getClass().getName());
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK) {
+
+            if(requestCode == REQUEST_CODE_CATEGORY) {
+                int result = data.getIntExtra(ListDialog.KEY_RESULT, 0);
+                btnCateg.setText(mCategories.get(result));
+                if(result == 0){
+                    mFindPost.setCategory(null);
+                }else{
+                    mFindPost.setCategory(mCategories.get(result));
+                }
+                findPosters();
+            }else if(requestCode == REQUEST_CODE_CITY) {
+                String result = data.getStringExtra(CityDialog.KEY_RESULT);
+                if(result.equals("")){
+                    mFindPost.setCity(null);
+                    btnCity.setText("Все города");
+                }else{
+                    btnCity.setText(result);
+                    mFindPost.setCity(result);
+                }
+                findPosters();
+            }else if(requestCode == REQUEST_CODE_SALLARY) {
+                String result = data.getStringExtra(CityDialog.KEY_RESULT);
+                if(result.equals("")){
+                    mFindPost.setSallary(null);
+                    btnSallary.setText("Без ограничений");
+                }else{
+                    mFindPost.setSallary(result);
+                    btnSallary.setText("От " + result + " грн");
+                }
+                findPosters();
+            }
+        }
     }
 
     public class MyHandler extends Handler {
         @Override
         public void handleMessage(Message msg) {
-            Log.e("MyLog", "Словил сообщение в фрагменте избранных резюме");
+            Log.e("MyLog", "Словил сообщение в фрагменте поиска вакансий");
             super.handleMessage(msg);
             int what = msg.what;
-
             if(what == MyService.KEY_UPDATE){
                 Bundle bundle = msg.getData();
                 String jsonString = bundle.getString(MyService.KEY_JSON_RESULT);
-                Log.e("MyLog", jsonString);
+                Log.e("MyLog", "Строка с найденными вакансиями:" + jsonString);
                 Type listType = new TypeToken<ArrayList<Poster>>(){}.getType();
                 mPosters = new Gson().fromJson(jsonString, listType);
                 updateUI();
                 mSwipeRefreshLayout.setRefreshing(false);
+            }else if(what == MyService.KEY_RETURN_CATEGORIES){
+                Bundle bundle = msg.getData();
+                String jsonString = bundle.getString(MyService.KEY_JSON_RESULT);
+                Type listType = new TypeToken<ArrayList<String>>(){}.getType();
+                mCategories = new Gson().fromJson(jsonString, listType);
+                mCategories.add(0, "Все категории");
             }
         }
     }
@@ -93,13 +185,32 @@ public class FragmentFavResume extends Fragment{
         recAll.setAdapter(adapter);
     }
 
-    public void findPosters(){
-        String data = new Gson().toJson(mFindPost);
-        MesToServer mts = new MesToServer(MyService.KEY_COMMAND_GET_FAV_RESUMES, data);
+    public void getCategories(){
+        MesToServer mts = new MesToServer(MyService.KEY_COMMAND_GET_CATEGORIES, null);     //Теперь запрашиваем список категорий
         String jsonMes = new Gson().toJson(mts);
         Intent i = new Intent(getActivity(), MyService.class);
         i.putExtra(MyService.KEY_MESSAGE_TO_SERVER, jsonMes);
-        i.putExtra(MyService.SENDER, MyService.SENDER_FavR);
+        i.putExtra(MyService.SENDER, MyService.SENDER_FIV);
+        getActivity().startService(i);
+    }
+
+    public void findPosters(){
+        String data = new Gson().toJson(mFindPost);
+        MesToServer mts = new MesToServer(MyService.KEY_COMMAND_FIND_VACANCIES, data);
+        String jsonMes = new Gson().toJson(mts);
+        Intent i = new Intent(getActivity(), MyService.class);
+        i.putExtra(MyService.KEY_MESSAGE_TO_SERVER, jsonMes);
+        i.putExtra(MyService.SENDER, MyService.SENDER_FIV);
+        getActivity().startService(i);
+    }
+
+    public void toggleFavorite(Poster mPoster){
+        String data = new Gson().toJson(mPoster);
+        MesToServer mts = new MesToServer(MyService.KEY_COMMAND_TOGGLE_FAV_VACANCY, data);
+        String jsonMes = new Gson().toJson(mts);
+        Intent i = new Intent(getActivity(), MyService.class);
+        i.putExtra(MyService.KEY_MESSAGE_TO_SERVER, jsonMes);
+        i.putExtra(MyService.SENDER, MyService.SENDER_FIV);
         getActivity().startService(i);
     }
 
@@ -114,6 +225,13 @@ public class FragmentFavResume extends Fragment{
             tvCity = (TextView) itemView.findViewById(R.id.tv_city);
             tvSallary = (TextView) itemView.findViewById(R.id.tv_sallary);
             btnFav = (ImageButton) itemView.findViewById(R.id.btn_fav);
+
+            btnFav.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    toggleFavorite(mPoster);
+                }
+            });
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -138,6 +256,7 @@ public class FragmentFavResume extends Fragment{
                 @Override
                 public void onClick(View v) {
                     Poster poster = new Poster();
+                    poster.setIdCreator(mUser.getId());
                     poster.setId(mPoster.getId());
                     String data = new Gson().toJson(poster);
 
@@ -145,7 +264,7 @@ public class FragmentFavResume extends Fragment{
                     String jsonMes = new Gson().toJson(mts);
                     Intent i = new Intent(getActivity(), MyService.class);
                     i.putExtra(MyService.KEY_MESSAGE_TO_SERVER, jsonMes);
-                    i.putExtra(MyService.SENDER, MyService.SENDER_FavR);
+                    i.putExtra(MyService.SENDER, MyService.SENDER_WF);
                     getActivity().startService(i);
 
                     mPoster.setFavorite(!mPoster.isFavorite());
@@ -213,7 +332,6 @@ public class FragmentFavResume extends Fragment{
             }
         });
     }
-
 
     @Override
     public void onResume() {

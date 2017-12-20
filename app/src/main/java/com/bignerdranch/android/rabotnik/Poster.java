@@ -9,9 +9,10 @@ public class Poster {
     private String sallary;
     private String Category;
     private boolean isFavorite;
+    private String email;
 
     public Poster(int id, int idCreator, String title, String body,
-                  String city, String sallary, String Category, boolean isFavorite) {
+                  String city, String sallary, String Category, boolean isFavorite, String email) {
         super();
 
         this.id = id;
@@ -22,6 +23,7 @@ public class Poster {
         this.sallary = sallary;
         this.Category = Category;
         this.isFavorite = isFavorite;
+        this.email = email;
     }
 
     public Poster() {  }
@@ -84,4 +86,13 @@ public class Poster {
     public void setFavorite(boolean favorite) {
         isFavorite = favorite;
     }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
 }

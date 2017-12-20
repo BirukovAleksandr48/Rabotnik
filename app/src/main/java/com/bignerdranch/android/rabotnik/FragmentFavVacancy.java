@@ -25,7 +25,7 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
-public class FragmentFavResume extends Fragment{
+public class FragmentFavVacancy extends Fragment{
     RecyclerView recAll;
     ArrayList<Poster> mPosters;
     public static Handler handler = new Handler();
@@ -34,9 +34,9 @@ public class FragmentFavResume extends Fragment{
     User mUser;
     SwipeRefreshLayout mSwipeRefreshLayout;
 
-    public static FragmentFavResume newInstance(){
+    public static FragmentFavVacancy newInstance(){
         Log.e("MyLog", "Создал обьект избранные резюме");
-        FragmentFavResume fragement = new FragmentFavResume();
+        FragmentFavVacancy fragement = new FragmentFavVacancy();
         return fragement;
     }
 
@@ -65,14 +65,14 @@ public class FragmentFavResume extends Fragment{
                 findPosters();
             }
         });
-        getActivity().setTitle("Избранные резюме");
+        getActivity().setTitle("Избранные вакансии");
         return v;
     }
 
     public class MyHandler extends Handler {
         @Override
         public void handleMessage(Message msg) {
-            Log.e("MyLog", "Словил сообщение в фрагменте избранных резюме");
+            Log.e("MyLog", "Словил сообщение в фрагменте избранных вакансий");
             super.handleMessage(msg);
             int what = msg.what;
 
@@ -95,11 +95,11 @@ public class FragmentFavResume extends Fragment{
 
     public void findPosters(){
         String data = new Gson().toJson(mFindPost);
-        MesToServer mts = new MesToServer(MyService.KEY_COMMAND_GET_FAV_RESUMES, data);
+        MesToServer mts = new MesToServer(MyService.KEY_COMMAND_GET_FAV_VACANCIES, data);
         String jsonMes = new Gson().toJson(mts);
         Intent i = new Intent(getActivity(), MyService.class);
         i.putExtra(MyService.KEY_MESSAGE_TO_SERVER, jsonMes);
-        i.putExtra(MyService.SENDER, MyService.SENDER_FavR);
+        i.putExtra(MyService.SENDER, MyService.SENDER_FavV);
         getActivity().startService(i);
     }
 
@@ -141,11 +141,11 @@ public class FragmentFavResume extends Fragment{
                     poster.setId(mPoster.getId());
                     String data = new Gson().toJson(poster);
 
-                    MesToServer mts = new MesToServer(MyService.KEY_COMMAND_TOGGLE_FAV, data);
+                    MesToServer mts = new MesToServer(MyService.KEY_COMMAND_TOGGLE_FAV_VACANCY, data);
                     String jsonMes = new Gson().toJson(mts);
                     Intent i = new Intent(getActivity(), MyService.class);
                     i.putExtra(MyService.KEY_MESSAGE_TO_SERVER, jsonMes);
-                    i.putExtra(MyService.SENDER, MyService.SENDER_FavR);
+                    i.putExtra(MyService.SENDER, MyService.SENDER_FavV);
                     getActivity().startService(i);
 
                     mPoster.setFavorite(!mPoster.isFavorite());
